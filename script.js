@@ -34,12 +34,12 @@ function displayEntries() {
                 <div class="entry-info">
                     <div class="entry-name">${escapeHtml(entry.name)}</div>
                     <div class="entry-details">
-                        📅 ${escapeHtml(entry.day)} | 🕐 ${escapeHtml(entry.time)} Uhr | ⏱️ ${formatDuration(entry.duration)}
+                        📅 ${escapeHtml(entry.day)} | 🕐 ${escapeHtml(entry.time)} Uhr${entry.duration ? ` | ⏱️ ${formatDuration(entry.duration)}` : ''}
                     </div>
                     ${entry.topic ? `<div class="entry-topic">💡 ${escapeHtml(entry.topic)}</div>` : ''}
                 </div>
                 <div class="entry-actions">
-                    <button class="btn-calendar" onclick="addToCalendar(${index})" title="Zum Kalender hinzufügen">📅</button>
+                    ${entry.duration ? `<button class="btn-calendar" onclick="addToCalendar(${index})" title="Zum Kalender hinzufügen" aria-label="Zum Kalender hinzufügen">📅</button>` : ''}
                     <button class="btn-delete" onclick="deleteEntry(${index})">Löschen</button>
                 </div>
             </div>
@@ -51,6 +51,9 @@ function displayEntries() {
 // Format duration for display
 function formatDuration(minutes) {
     const mins = parseInt(minutes);
+    if (isNaN(mins) || mins <= 0) {
+        return '';  // Return empty string for invalid/missing duration
+    }
     if (mins < 60) {
         return `${mins} Min`;
     } else {
@@ -133,6 +136,12 @@ document.getElementById('surveyForm').addEventListener('submit', function(e) {
 // Handle clear all button
 document.getElementById('clearAll').addEventListener('click', clearAllEntries);
 
+// Format date for ICS file (YYYYMMDDTHHMMSS)
+function formatICSDate(date) {
+    const pad = (n) => n.toString().padStart(2, '0');
+    return `${date.getFullYear()}${pad(date.getMonth() + 1)}${pad(date.getDate())}T${pad(date.getHours())}${pad(date.getMinutes())}00`;
+}
+
 // Add to calendar function
 function addToCalendar(index) {
     const entries = loadEntries();
@@ -140,27 +149,62 @@ function addToCalendar(index) {
     
     if (!entry) return;
     
-    // Parse date and time
-    const [day, month, year] = entry.day.split('.');
-    const [hours, minutes] = entry.time.split(':');
+    // Check if entry has duration
+    if (!entry.duration) {
+        alert('Dieser Eintrag hat keine Dauer und kann nicht zum Kalender hinzugefügt werden.');
+        return;
+    }
+    
+    // Parse date and time with validation
+    const dateParts = entry.day.split('.');
+    const timeParts = entry.time.split(':');
+    
+    if (dateParts.length !== 3 || timeParts.length !== 2) {
+        alert('Ungültiges Datum- oder Zeitformat.');
+        return;
+    }
+    
+    const [day, month, year] = dateParts.map(p => parseInt(p));
+    const [hours, minutes] = timeParts.map(p => parseInt(p));
     
     // Create full date (assuming 2026 based on the dates used)
-    const startDate = new Date(2000 + parseInt(year), parseInt(month) - 1, parseInt(day), parseInt(hours), parseInt(minutes));
+    const startDate = new Date(2000 + year, month - 1, day, hours, minutes);
+    
+    // Validate date
+    if (isNaN(startDate.getTime())) {
+        alert('Ungültiges Datum.');
+        return;
+    }
     
     // Calculate end time based on duration
-    const endDate = new Date(startDate.getTime() + parseInt(entry.duration) * 60000);
+    const durationMinutes = parseInt(entry.duration);
+    if (isNaN(durationMinutes)) {
+        alert('Ungültige Dauer.');
+        return;
+    }
     
-    // Format dates for ICS file (YYYYMMDDTHHMMSS)
-    const formatICSDate = (date) => {
-        const pad = (n) => n.toString().padStart(2, '0');
-        return `${date.getFullYear()}${pad(date.getMonth() + 1)}${pad(date.getDate())}T${pad(date.getHours())}${pad(date.getMinutes())}00`;
-    };
+    const endDate = new Date(startDate.getTime() + durationMinutes * 60000);
+    const now = new Date();
     
     const startStr = formatICSDate(startDate);
     const endStr = formatICSDate(endDate);
+    const stampStr = formatICSDate(now);
+    
+    // Generate unique UID
+    const uid = `lerngruppe-${Date.now()}-${index}@lerngruppe.local`;
+    
+    // Escape special characters in ICS text fields
+    const escapeICSText = (text) => {
+        return text.replace(/\\/g, '\\\\')
+                   .replace(/,/g, '\\,')
+                   .replace(/;/g, '\\;')
+                   .replace(/\n/g, '\\n');
+    };
     
     // Create ICS file content
-    const description = entry.topic ? `Themen: ${entry.topic}` : 'Lerngruppe';
+    const description = entry.topic ? `Themen: ${escapeICSText(entry.topic)}` : 'Lerngruppe';
+    const summary = escapeICSText(`Lerngruppe - ${entry.name}`);
+    
     const icsContent = [
         'BEGIN:VCALENDAR',
         'VERSION:2.0',
@@ -168,9 +212,11 @@ function addToCalendar(index) {
         'CALSCALE:GREGORIAN',
         'METHOD:PUBLISH',
         'BEGIN:VEVENT',
+        `UID:${uid}`,
+        `DTSTAMP:${stampStr}`,
         `DTSTART:${startStr}`,
         `DTEND:${endStr}`,
-        `SUMMARY:Lerngruppe - ${entry.name}`,
+        `SUMMARY:${summary}`,
         `DESCRIPTION:${description}`,
         'STATUS:CONFIRMED',
         'SEQUENCE:0',
@@ -182,26 +228,26 @@ function addToCalendar(index) {
     const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = `lerngruppe_${entry.day.replace(/\./g, '')}_${entry.name.replace(/\s+/g, '_')}.ics`;
     
-    // For mobile devices, try to open the calendar directly
+    // Sanitize filename
+    const sanitizeName = (name) => {
+        return name.replace(/[^a-zA-Z0-9_-]/g, '_');
+    };
+    
+    link.download = `lerngruppe_${entry.day.replace(/\./g, '')}_${sanitizeName(entry.name)}.ics`;
+    
+    // Trigger download
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    // Show message on mobile
     if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-        // Try to trigger the download which will prompt to add to calendar on mobile
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        
-        // Show success message
         alert('Kalenderdatei wird heruntergeladen. Öffne die Datei, um den Termin zu deinem Kalender hinzuzufügen.');
-    } else {
-        // Desktop: just download
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
     }
     
-    // Clean up
-    setTimeout(() => URL.revokeObjectURL(link.href), 100);
+    // Clean up after delay
+    setTimeout(() => URL.revokeObjectURL(link.href), 1000);
 }
 
 // Initial display

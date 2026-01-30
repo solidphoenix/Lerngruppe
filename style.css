@@ -159,8 +159,11 @@ h2 {
     font-size: 1.2em;
 }
 
-.btn-calendar:hover {
+.btn-calendar:hover,
+.btn-calendar:focus {
     background: #218838;
+    outline: 2px solid #155724;
+    outline-offset: 2px;
 }
 
 .btn-delete {
