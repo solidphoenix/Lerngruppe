@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lerngruppe Umfrage</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Lerngruppe Zeitplanung</h1>
+        <p class="subtitle">Wann kannst du am besten lernen?</p>
+        
+        <form id="surveyForm">
+            <div class="form-group">
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" required placeholder="Dein Name">
+            </div>
+            
+            <div class="form-group">
+                <label for="day">Bester Tag:</label>
+                <select id="day" name="day" required>
+                    <option value="">Wähle einen Tag...</option>
+                    <option value="Montag">Montag</option>
+                    <option value="Dienstag">Dienstag</option>
+                    <option value="Mittwoch">Mittwoch</option>
+                    <option value="Donnerstag">Donnerstag</option>
+                    <option value="Freitag">Freitag</option>
+                    <option value="Samstag">Samstag</option>
+                    <option value="Sonntag">Sonntag</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="time">Beste Uhrzeit:</label>
+                <input type="time" id="time" name="time" required>
+            </div>
+            
+            <button type="submit" class="btn-submit">Eintrag hinzufügen</button>
+        </form>
+        
+        <div class="results-section">
+            <h2>Einträge</h2>
+            <div id="entriesList" class="entries-list">
+                <p class="no-entries">Noch keine Einträge vorhanden.</p>
+            </div>
+            <button id="clearAll" class="btn-clear">Alle Einträge löschen</button>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
