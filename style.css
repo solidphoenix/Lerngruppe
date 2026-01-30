@@ -142,6 +142,27 @@ h2 {
     display: inline-block;
 }
 
+.entry-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.btn-calendar {
+    padding: 8px 12px;
+    background: #28a745;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s;
+    font-size: 1.2em;
+}
+
+.btn-calendar:hover {
+    background: #218838;
+}
+
 .btn-delete {
     padding: 8px 15px;
     background: #dc3545;
@@ -199,8 +220,13 @@ h2 {
         align-items: flex-start;
     }
     
-    .btn-delete {
+    .entry-actions {
         margin-top: 10px;
         width: 100%;
+    }
+    
+    .btn-delete,
+    .btn-calendar {
+        flex: 1;
     }
 }
