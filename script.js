@@ -4,7 +4,14 @@ const STORAGE_KEY = 'lerngruppe_entries';
 // Load entries from localStorage
 function loadEntries() {
     const stored = localStorage.getItem(STORAGE_KEY);
-    return stored ? JSON.parse(stored) : [];
+    if (!stored) return [];
+    
+    try {
+        return JSON.parse(stored);
+    } catch (e) {
+        console.error('Failed to parse stored entries:', e);
+        return [];
+    }
 }
 
 // Save entries to localStorage
@@ -68,11 +75,6 @@ document.getElementById('surveyForm').addEventListener('submit', function(e) {
     const day = document.getElementById('day').value;
     const time = document.getElementById('time').value;
     
-    if (!name || !day || !time) {
-        alert('Bitte fülle alle Felder aus.');
-        return;
-    }
-    
     // Get existing entries
     const entries = loadEntries();
     
@@ -80,8 +82,7 @@ document.getElementById('surveyForm').addEventListener('submit', function(e) {
     entries.push({
         name: name,
         day: day,
-        time: time,
-        timestamp: new Date().toISOString()
+        time: time
     });
     
     // Save to localStorage
