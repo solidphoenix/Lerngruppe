@@ -36,6 +36,7 @@ function displayEntries() {
                     <div class="entry-details">
                         📅 ${escapeHtml(entry.day)} | 🕐 ${escapeHtml(entry.time)} Uhr
                     </div>
+                    ${entry.topic ? `<div class="entry-topic">💡 ${escapeHtml(entry.topic)}</div>` : ''}
                 </div>
                 <button class="btn-delete" onclick="deleteEntry(${index})">Löschen</button>
             </div>
@@ -74,6 +75,7 @@ document.getElementById('surveyForm').addEventListener('submit', function(e) {
     const name = document.getElementById('name').value.trim();
     const day = document.getElementById('day').value;
     const time = document.getElementById('time').value;
+    const topic = document.getElementById('topic').value.trim();
     
     // Get existing entries
     const entries = loadEntries();
@@ -82,7 +84,8 @@ document.getElementById('surveyForm').addEventListener('submit', function(e) {
     entries.push({
         name: name,
         day: day,
-        time: time
+        time: time,
+        topic: topic
     });
     
     // Save to localStorage

@@ -47,20 +47,28 @@ label {
 
 input[type="text"],
 input[type="time"],
-select {
+select,
+textarea {
     width: 100%;
     padding: 12px;
     border: 2px solid #ddd;
     border-radius: 8px;
     font-size: 16px;
     transition: border-color 0.3s;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 input[type="text"]:focus,
 input[type="time"]:focus,
-select:focus {
+select:focus,
+textarea:focus {
     outline: none;
     border-color: #667eea;
+}
+
+textarea {
+    resize: vertical;
+    min-height: 80px;
 }
 
 .btn-submit {
@@ -122,6 +130,16 @@ h2 {
 .entry-details {
     color: #666;
     font-size: 0.95em;
+}
+
+.entry-topic {
+    color: #555;
+    font-size: 0.9em;
+    margin-top: 5px;
+    padding: 5px 10px;
+    background: #e9ecef;
+    border-radius: 5px;
+    display: inline-block;
 }
 
 .btn-delete {
