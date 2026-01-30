@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lerngruppe Umfrage</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Lerngruppe Zeitplanung</h1>
+        <p class="subtitle">Wann kannst du am besten lernen?</p>
+        
+        <form id="surveyForm">
+            <div class="form-group">
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" required placeholder="Dein Name">
+            </div>
+            
+            <div class="form-group">
+                <label for="day">Datum:</label>
+                <select id="day" name="day" required>
+                    <option value="" disabled selected>Wähle ein Datum...</option>
+                    <option value="09.02.26">09.02.26 (Montag)</option>
+                    <option value="10.02.26">10.02.26 (Dienstag)</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="time">Beste Uhrzeit:</label>
+                <input type="time" id="time" name="time" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="duration">Lerndauer:</label>
+                <select id="duration" name="duration" required>
+                    <option value="" disabled selected>Wähle die Dauer...</option>
+                    <option value="15">15 Minuten</option>
+                    <option value="30">30 Minuten</option>
+                    <option value="45">45 Minuten</option>
+                    <option value="60">1 Stunde</option>
+                    <option value="75">1 Stunde 15 Minuten</option>
+                    <option value="90">1 Stunde 30 Minuten</option>
+                    <option value="105">1 Stunde 45 Minuten</option>
+                    <option value="120">2 Stunden</option>
+                    <option value="135">2 Stunden 15 Minuten</option>
+                    <option value="150">2 Stunden 30 Minuten</option>
+                    <option value="165">2 Stunden 45 Minuten</option>
+                    <option value="180">3 Stunden</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="topic">Themenwünsche:</label>
+                <textarea id="topic" name="topic" rows="3" placeholder="Welche Themen möchtest du lernen?"></textarea>
+            </div>
+            
+            <button type="submit" class="btn-submit">Eintrag hinzufügen</button>
+        </form>
+        
+        <div class="results-section">
+            <h2>Einträge</h2>
+            <div id="entriesList" class="entries-list">
+                <p class="no-entries">Noch keine Einträge vorhanden.</p>
+            </div>
+            <button id="clearAll" class="btn-clear">Alle Einträge löschen</button>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
